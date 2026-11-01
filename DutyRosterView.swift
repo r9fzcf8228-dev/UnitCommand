@@ -20,7 +20,7 @@ struct DutyRosterView: View {
                 }
                 .onDelete(perform: delete)
             }
-            .navigationTitle("واجبات")
+            .navigationTitle("الواحبات")
             .toolbar {
                 Button("إضافة", systemImage: "plus") { showingAdd = true }
             }
@@ -41,29 +41,22 @@ struct AddDutyView: View {
     @Query private var soldiers: [Soldier]
     
     @State private var date = Date()
-    @State private var type = "واجبات"
+    @State private var type = "واحبات"
     @State private var selectedSoldier: Soldier?
-    
-    // متغير جديد لحفظ النوع المخصص الذي يكتبه المستخدم
     @State private var customType = ""
 
-    // أضفنا خيار "أخرى" إلى القائمة
-    let types = ["واجب", "حرس", "واجب", "دورية", "أخرى"]
+    let types = ["حرس", "واجب", "دورية", "أخرى"]
 
     var body: some View {
         NavigationStack {
             Form {
                 DatePicker("التاريخ", selection: $date, displayedComponents: .date)
-                
                 Picker("النوع", selection: $type) {
                     ForEach(types, id: \.self) { Text($0) }
                 }
-                
-                // إذا اختار المستخدم "أخرى"، يظهر مربع الكتابة
                 if type == "أخرى" {
                     TextField("اكتب نوع الواجب هنا...", text: $customType)
                 }
-                
                 Picker("الفرد", selection: $selectedSoldier) {
                     Text("بدون").tag(Soldier?.none)
                     ForEach(soldiers) { s in
@@ -74,14 +67,11 @@ struct AddDutyView: View {
             .navigationTitle("واجب جديدة")
             .toolbar {
                 Button("حفظ") {
-                    // إذا كان الخيار "أخرى"، نأخذ النص المكتوب، وإلا نأخذ النوع المختار من القائمة
                     let finalType = type == "أخرى" ? (customType.isEmpty ? "غير محدد" : customType) : type
-                    
                     let duty = Duty(date: date, type: finalType, soldier: selectedSoldier)
                     context.insert(duty)
                     dismiss()
                 }
-                // يمنع الحفظ إذا اختار "أخرى" ولم يكتب شيئاً
                 .disabled(type == "أخرى" && customType.isEmpty)
                 
                 Button("إلغاء") { dismiss() }
