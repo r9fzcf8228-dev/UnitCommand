@@ -1,7 +1,39 @@
+import SwiftUI
+import SwiftData
+import UIKit
+
+@main
+struct UnitCommandApp: App {
+    var body: some Scene {
+        WindowGroup {
+            MainAppView()
+        }
+        .modelContainer(for: [Soldier.self, Duty.self, Mission.self, Weapon.self, Ammo.self, Vehicle.self, DailyLog.self])
+    }
+}
+
+struct MainAppView: View {
+    @State private var isSplashActive = true
+    
+    var body: some View {
+        ZStack {
+            if isSplashActive {
+                SplashView().transition(.opacity).zIndex(1)
+            } else {
+                ContentView().transition(.opacity)
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                withAnimation(.easeInOut(duration: 0.8)) { self.isSplashActive = false }
+            }
+        }
+    }
+}
+
 struct ContentView: View {
     @State private var selectedTab = 0
     
-    // تغيير لون شريط التبويبات ليكون داكناً
     init() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -30,7 +62,7 @@ struct ContentView: View {
             SalaryCalculatorView()
                 .tabItem { Label("السلم", systemImage: "banknote.fill") }.tag(5)
         }
-        .tint(.green) // لون التحديد
+        .tint(.green)
         .environment(\.layoutDirection, .rightToLeft)
     }
 }
