@@ -1,60 +1,36 @@
-import SwiftUI
-import SwiftData
-
-@main
-struct UnitCommandApp: App {
-    var body: some Scene {
-        WindowGroup {
-            MainAppView()
-        }
-        // تحديث قاعدة البيانات لتشمل كل النماذج الجديدة
-        .modelContainer(for: [Soldier.self, Duty.self, Mission.self, Weapon.self, Ammo.self, Vehicle.self, DailyLog.self])
-    }
-}
-
-struct MainAppView: View {
-    @State private var isSplashActive = true
-    
-    var body: some View {
-        ZStack {
-            if isSplashActive {
-                SplashView().transition(.opacity).zIndex(1)
-            } else {
-                ContentView().transition(.opacity)
-            }
-        }
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
-                withAnimation(.easeInOut(duration: 0.8)) { self.isSplashActive = false }
-            }
-        }
-    }
-}
-
 struct ContentView: View {
     @State private var selectedTab = 0
+    
+    // تغيير لون شريط التبويبات ليكون داكناً
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(red: 0.05, green: 0.08, blue: 0.05, alpha: 1.0)
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
             DashboardView()
-                .tabItem { Label("الرئيسية", systemImage: "square.grid.2x2.fill") }.tag(0)
+                .tabItem { Label("القيادة", systemImage: "target") }.tag(0)
             
             RosterView()
-                .tabItem { Label("الأفراد", systemImage: "person.3.fill") }.tag(1)
+                .tabItem { Label("الأفراد", systemImage: "person.text.rectangle.fill") }.tag(1)
             
             MedicalView()
-                .tabItem { Label("الطبابة", systemImage: "cross.case.fill") }.tag(2)
+                .tabItem { Label("الطبابة", systemImage: "staroflife.fill") }.tag(2)
             
             LogisticsView()
-                .tabItem { Label("اللوجستيات", systemImage: "shield.lefthalf.filled") }.tag(3)
+                .tabItem { Label("اللوجستيات", systemImage: "archivebox.fill") }.tag(3)
             
             OperationsView()
-                .tabItem { Label("العمليات", systemImage: "calendar.badge.clock") }.tag(4)
+                .tabItem { Label("العمليات", systemImage: "map.fill") }.tag(4)
             
             SalaryCalculatorView()
-                .tabItem { Label("السلم", systemImage: "dollarsign.circle.fill") }.tag(5)
+                .tabItem { Label("السلم", systemImage: "banknote.fill") }.tag(5)
         }
-        .tint(.green)
+        .tint(.green) // لون التحديد
         .environment(\.layoutDirection, .rightToLeft)
     }
 }
