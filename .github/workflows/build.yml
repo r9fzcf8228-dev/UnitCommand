@@ -20,16 +20,7 @@ jobs:
 
       - name: Build
         run: |
-          xcodebuild \
-            -project UnitCommand.xcodeproj \
-            -scheme UnitCommand \
-            -sdk iphoneos \
-            -configuration Release \
-            -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            build
+          xcodebuild -project UnitCommand.xcodeproj -scheme UnitCommand -sdk iphoneos -configuration Release -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
 
       - name: Package IPA
         run: |
