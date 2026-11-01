@@ -1,4 +1,4 @@
-name: UnitCommand
+name: Unitcommand 
 options:
   bundleIdPrefix: com.yourname.unitcommand
   deploymentTarget:
