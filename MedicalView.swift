@@ -4,52 +4,37 @@ import SwiftData
 struct MedicalView: View {
     @Query(sort: \Soldier.name) private var soldiers: [Soldier]
     @State private var selectedSoldier: Soldier?
-    @State private var showingEdit = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // خلفية عسكرية داكنة
                 Color(red: 0.05, green: 0.08, blue: 0.05).ignoresSafeArea()
                 
                 if soldiers.isEmpty {
-                    // شكل يظهر عندما لا يوجد أفراد
                     VStack(spacing: 15) {
-                        Image(systemName: "staroflife.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.red.opacity(0.5))
-                        Text("لا يوجد أفراد مسجلين")
-                            .font(.headline).foregroundColor(.gray)
-                        Text("أضف أفراداً من شاشة (الأفراد) أولاً")
-                            .font(.caption).foregroundColor(.gray)
+                        Image(systemName: "staroflife.fill").font(.system(size: 60)).foregroundColor(.red.opacity(0.5))
+                        Text("لا يوجد أفراد مسجلين").font(.headline).foregroundColor(.gray)
+                        Text("أضف أفراداً من شاشة (الأفراد) أولاً").font(.caption).foregroundColor(.gray)
                     }
                 } else {
                     List {
                         ForEach(soldiers) { soldier in
                             VStack(alignment: .trailing, spacing: 8) {
                                 HStack {
-                                    Image(systemName: "staroflife.fill")
-                                        .foregroundColor(.red)
+                                    Image(systemName: "staroflife.fill").foregroundColor(.red)
                                     Text(soldier.name).font(.headline).foregroundColor(.white)
                                     Spacer()
-                                    Text(soldier.bloodType)
-                                        .font(.system(size: 14, weight: .bold))
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(Color.red.opacity(0.2))
-                                        .foregroundColor(.red)
-                                        .cornerRadius(8)
+                                    Text(soldier.bloodType).font(.system(size: 14, weight: .bold))
+                                        .padding(.horizontal, 10).padding(.vertical, 4)
+                                        .background(Color.red.opacity(0.2)).foregroundColor(.red).cornerRadius(8)
                                 }
                                 
                                 if !soldier.medicalNotes.isEmpty {
-                                    Text(soldier.medicalNotes)
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray)
-                                        .multilineTextAlignment(.trailing)
-                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                    Text(soldier.medicalNotes).font(.subheadline).foregroundColor(.gray)
+                                        .multilineTextAlignment(.trailing).frame(maxWidth: .infinity, alignment: .trailing)
                                 } else {
-                                    Text("لا توجد ملاحظات طبية")
-                                        .font(.caption).foregroundColor(.gray.opacity(0.7))
+                                    // تم تفتيح اللون هنا
+                                    Text("لا توجد ملاحظات طبية").font(.caption).foregroundColor(.gray.opacity(0.8))
                                 }
                             }
                             .padding(.vertical, 8)
@@ -61,33 +46,27 @@ struct MedicalView: View {
                             .listRowSeparator(.hidden)
                             .onTapGesture {
                                 selectedSoldier = soldier
-                                showingEdit = true
                             }
                         }
                     }
                     .listStyle(.plain)
                 }
             }
-            .navigationTitle("السجل الطبي")
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .sheet(isPresented: $showingEdit) {
-                if let soldier = selectedSoldier {
-                    EditMedicalView(soldier: soldier)
-                }
+            .navigationTitle("السجل الطبي").toolbarColorScheme(.dark, for: .navigationBar)
+            // هذا هو التعديل الأهم لضمان ظهور الشاشة
+            .sheet(item: $selectedSoldier) { soldier in
+                EditMedicalView(soldier: soldier)
             }
         }
     }
 }
 
-// شاشة تعديل البيانات الطبية
 struct EditMedicalView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     var soldier: Soldier
-    
     @State private var bloodType: String = ""
     @State private var notes: String = ""
-    
     let bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "غير محدد"]
 
     var body: some View {
@@ -98,18 +77,16 @@ struct EditMedicalView: View {
                     Text(soldier.rank).font(.subheadline)
                 }
                 Section("البيانات الطبية") {
-                    Picker("زمرة الدم", selection: $bloodType) {
-                        ForEach(bloodTypes, id: \.self) { Text($0) }
+                    Picker("زمرة الدم", selection: $bloodType) { 
+                        ForEach(bloodTypes, id: \.self) { Text($0) } 
                     }
-                    TextField("ملاحظات (حساسية، أمراض...)", text: $notes, axis: .vertical)
-                        .lineLimit(3...6)
+                    TextField("ملاحظات (حساسية...)", text: $notes, axis: .vertical).lineLimit(3...6)
                 }
             }
-            .navigationTitle("تعديل السجل الطبي")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
+            .navigationTitle("تعديل السجل").navigationBarTitleDisplayMode(.inline)
+            .onAppear { 
                 bloodType = soldier.bloodType
-                notes = soldier.medicalNotes
+                notes = soldier.medicalNotes 
             }
             .toolbar {
                 Button("حفظ") {
