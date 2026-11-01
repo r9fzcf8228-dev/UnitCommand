@@ -7,7 +7,7 @@ final class Soldier {
     var name: String
     var rank: String
     var militaryNumber: String
-    var status: String // حاضر، مأذونية، مريض، دورة
+    var status: String
     var duties: [Duty] = []
     var missions: [Mission] = []
 
@@ -24,7 +24,7 @@ final class Soldier {
 final class Duty {
     var id: UUID
     var date: Date
-    var type: String // مناوبة، حرس، واجب
+    var type: String
     var soldier: Soldier?
 
     init(date: Date, type: String, soldier: Soldier? = nil) {
