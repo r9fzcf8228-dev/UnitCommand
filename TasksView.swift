@@ -8,30 +8,48 @@ struct TasksView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(missions) { mission in
-                    HStack {
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text(mission.title)
-                                .strikethrough(mission.isCompleted)
-                            Text("مسند إلى: \(mission.assignedTo?.name ?? "غير محدد")")
-                                .font(.caption)
-                            Text(mission.dueDate, style: .date).font(.caption2)
+            ZStack {
+                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
+                
+                List {
+                    ForEach(missions) { mission in
+                        HStack {
+                            VStack(alignment: .trailing, spacing: 4) {
+                                Text(mission.title)
+                                    .font(.headline)
+                                    .strikethrough(mission.isCompleted)
+                                Text("مسند إلى: \(mission.assignedTo?.name ?? "غير محدد")")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text(mission.dueDate, style: .date).font(.caption2)
+                            }
+                            Spacer()
+                            Button {
+                                withAnimation {
+                                    mission.isCompleted.toggle()
+                                }
+                            } label: {
+                                Image(systemName: mission.isCompleted ? "checkmark.circle.fill" : "circle")
+                                    .font(.title2)
+                                    .foregroundColor(mission.isCompleted ? .green : .gray)
+                            }
                         }
-                        Spacer()
-                        Button {
-                            mission.isCompleted.toggle()
-                        } label: {
-                            Image(systemName: mission.isCompleted ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(mission.isCompleted ? .green : .gray)
-                        }
+                        .padding(.vertical, 8)
+                        .listRowBackground(
+                            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                .fill(.ultraThinMaterial)
+                        )
+                        .listRowSeparator(.hidden)
                     }
+                    .onDelete(perform: delete)
                 }
-                .onDelete(perform: delete)
+                .listStyle(.plain)
             }
             .navigationTitle("المهام")
             .toolbar {
-                Button("إضافة", systemImage: "plus") { showingAdd = true }
+                Button { showingAdd = true } label: {
+                    Image(systemName: "plus.circle.fill").font(.title2).foregroundColor(.green)
+                }
             }
             .sheet(isPresented: $showingAdd) {
                 AddMissionView()
@@ -48,8 +66,8 @@ struct AddMissionView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     @Query private var soldiers: [Soldier]
+    
     @State private var title = ""
-    @State private var notes = ""
     @State private var dueDate = Date()
     @State private var selectedSoldier: Soldier?
 
@@ -57,7 +75,6 @@ struct AddMissionView: View {
         NavigationStack {
             Form {
                 TextField("عنوان المهمة", text: $title)
-                TextField("ملاحظات", text: $notes)
                 DatePicker("تاريخ الإنجاز", selection: $dueDate, displayedComponents: .date)
                 Picker("الفرد", selection: $selectedSoldier) {
                     Text("بدون").tag(Soldier?.none)
@@ -67,14 +84,21 @@ struct AddMissionView: View {
                 }
             }
             .navigationTitle("مهمة جديدة")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                Button("حفظ") {
-                    let mission = Mission(title: title, assignedTo: selectedSoldier, dueDate: dueDate, notes: notes)
-                    context.insert(mission)
-                    dismiss()
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("إلغاء") { dismiss() }
                 }
-                .disabled(title.isEmpty)
-                Button("إلغاء") { dismiss() }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("حفظ") {
+                        // هنا قمنا بحذف كلمة notes لكي تتطابق مع قاعدة البيانات
+                        let mission = Mission(title: title, assignedTo: selectedSoldier, dueDate: dueDate)
+                        context.insert(mission)
+                        dismiss()
+                    }
+                    .disabled(title.isEmpty)
+                    .bold()
+                }
             }
         }
     }
